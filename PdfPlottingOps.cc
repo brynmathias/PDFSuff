@@ -95,8 +95,13 @@ void PDFPlottingOps::Start( Event::Data& ev ) {
   const string NAME1 = "/vols/cms03/bm409/LHAPDF/share/lhapdf/cteq66.LHgrid"; //location of the pdf set
   const string NAME2 = "/vols/cms03/bm409/LHAPDF/share/lhapdf/MSTW2008nlo68cl.LHgrid"; //location of the pdf set
   const string NAME3 = "/vols/cms03/bm409/LHAPDF/share/lhapdf/NNPDF20_100.LHgrid";
+  LHAPDF::setPDFPath("/vols/cms03/bm409/LHAPDF/share/lhapdf/");
 
-  LHAPDF::initPDFSet(1,NAME1);
+  std::string pdfName1_ = "cteq61";
+  // std::string pdfName2_ = "MSTW2008nlo68cl";
+  const int pdfSubset = 0;
+  LHAPDF::initPDFSet(1, pdfName1_, LHAPDF::LHGRID, pdfSubset);
+  // LHAPDF::initPDFSet(2, pdfName2_, LHAPDF::LHGRID, pdfSubset);
       // LHAPDF::initPDFSet(2,NAME2);
   //    LHAPDF::initPDFSet(3,NAME3);
 
@@ -348,29 +353,39 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
     }
 
   //now set up the baseline values with which to weight relative to:
-    double pdf1 = ev.genpdf1();
-    double pdf2 = ev.genpdf2();
+    // LHAPDF::usePDFMember(2, 0);
+    // double fx1Q0Other = LHAPDF::xfx(ev.genx1(), ev.genQ(), ev.genid1())/ev.genx1();
+    // double fx2Q0Other = LHAPDF::xfx(ev.genx2(), ev.genQ(), ev.genid2())/ev.genx2();
+
+
+    LHAPDF::usePDFMember(1, 0);
+    double genpdf1 = LHAPDF::xfx(ev.genx1(), ev.genQ(), ev.genid1())/ev.genx1();
+    double genpdf2 = LHAPDF::xfx(ev.genx2(), ev.genQ(), ev.genid2())/ev.genx2();
+
+
+
+    // double pdfWeightOther = (fx1Q0Other*fx2Q0Other)/(fx1Q0*fx2Q0);
+
 
     if(verbose_ == true){
-      std::cout << "pdf1: " << pdf1 << std::endl;
-      std::cout << "pdf2: " << pdf2 << std::endl;
+      std::cout << "pdf1: " << genpdf1 << std::endl;
+      std::cout << "pdf2: " << genpdf2 << std::endl;
     }
 
 
 
-    for(unsigned int k = 1; k <= 1; ++k){
-      const int NUMBER = LHAPDF::numberPDF(k);
+      const int NUMBER = LHAPDF::numberPDF(1);
 
       if(verbose_ == true)cout << " number " << NUMBER << endl;
 
       for (int n = 0; n < NUMBER + 1; ++n) {
         if(verbose_ == true)cout << "Set number: " << n << endl;
-        LHAPDF::usePDFMember(k,n);
-        double newpdf1 =  LHAPDF::xfx(k,ev.genx1(), ev.genQ(), ev.genid1())/ev.genx1();
-        double newpdf2 =  LHAPDF::xfx(k,ev.genx2(), ev.genQ(), ev.genid2())/ev.genx2();
-        double PDFUncWeight = (newpdf1/pdf1)*(newpdf2/pdf2);
+        LHAPDF::initPDF(n);
+        double newpdf1 =  LHAPDF::xfx(ev.genx1(), ev.genQ(), ev.genid1())/ev.genx1();
+        double newpdf2 =  LHAPDF::xfx(ev.genx2(), ev.genQ(), ev.genid2())/ev.genx2();
+        double PDFUncWeight = (newpdf1/genpdf1)*(newpdf2/genpdf2);
 
-        if(verbose_ == true)cout << " n " << n << " k " << k << " M12 " << M12 << " chi " << " pdfweight " << PDFUncWeight << endl;
+        if(verbose_ == true)cout << " n " << n << " M0 " << M0  << " M12 " << M12  << " pdfweight " << PDFUncWeight << endl;
 
 
       // if(k==1)H_M0_M12_cteq66[n]  ->Fill(M0,M12,MChi,weight*PDFUncWeight);
@@ -390,11 +405,6 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
           case NLO::sg: H_M0_M12_sg[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_sg_noweight[0]->Fill(M0,M12,1); break;
           case NLO::NotFound: if(verbose_){cout << " DID NOT FIND A SUBPROCESS " << endl;} break;
         }
-
-
-
-
-      }
     }
   }
     return true;
