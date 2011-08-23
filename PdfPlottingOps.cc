@@ -379,6 +379,23 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
 
 
 
+        H_M0_M12_noweight[0]->Fill(M0,M12,1);
+        switch(process){
+          case NLO::nn:  H_M0_M12_nn_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::ns:  H_M0_M12_ns_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::ng:  H_M0_M12_ng_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::ss:  H_M0_M12_ss_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::ll:  H_M0_M12_ll_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::sb:  H_M0_M12_sb_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::tb:  H_M0_M12_tb_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::gg:  H_M0_M12_gg_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::bb:  H_M0_M12_bb_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::sg:  H_M0_M12_sg_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::NotFound: if(verbose_){cout << " DID NOT FIND A SUBPROCESS " << endl;} break;
+        }
+
+
+
       const int NUMBER = LHAPDF::numberPDF(1);
 
       if(verbose_ == true)cout << " number " << NUMBER << endl;
@@ -397,18 +414,17 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
       // if(k==2)H_M0_M12_MSTW2008[n]->Fill(M0,M12,MChi,weight*PDFUncWeight);
       // if(k==3)H_M0_M12_NNPDF[n]   ->Fill(M0,M12,MChi,weight*PDFUncWeight);
         if(verbose_ == true)cout << " m0 " << M0 << " m12 " << M12 << " nlocross " << NLOcrosssection << endl;
-        H_M0_M12_noweight[0]->Fill(M0,M12,1);
         switch(process){
-          case NLO::nn: H_M0_M12_nn[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_nn_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::ns: H_M0_M12_ns[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_ns_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::ng: H_M0_M12_ng[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_ng_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::ss: H_M0_M12_ss[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_ss_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::ll: H_M0_M12_ll[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_ll_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::sb: H_M0_M12_sb[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_sb_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::tb: H_M0_M12_tb[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_tb_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::gg: H_M0_M12_gg[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_gg_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::bb: H_M0_M12_bb[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_bb_noweight[0]->Fill(M0,M12,1); break;
-          case NLO::sg: H_M0_M12_sg[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_sg_noweight[0]->Fill(M0,M12,1); break;
+          case NLO::nn: H_M0_M12_nn[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::ns: H_M0_M12_ns[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::ng: H_M0_M12_ng[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::ss: H_M0_M12_ss[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::ll: H_M0_M12_ll[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::sb: H_M0_M12_sb[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::tb: H_M0_M12_tb[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::gg: H_M0_M12_gg[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::bb: H_M0_M12_bb[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
+          case NLO::sg: H_M0_M12_sg[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); break;
           case NLO::NotFound: if(verbose_){cout << " DID NOT FIND A SUBPROCESS " << endl;} break;
         }
     }

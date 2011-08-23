@@ -33,7 +33,7 @@ File = "PDFUncert.root"
 xBin = 62
 yBin = 36
 c1.Print("foo.ps[")
-HTbins = [275,325]#+ [375+100*i for i in range(6)]
+HTbins = [275,325]+ [375+100*i for i in range(6)]
 for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
   Text = r.TLatex(0.1,0.9,"PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
   Text.SetNDC()
@@ -42,16 +42,17 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
   for i in range(0,41):
     cuts = []
     nocuts = []
-    process = ["sg"]#"nn","ns","ng","ss","ll","sb","tb","gg","bb","sg"]
+    process = ["nn","ns","ng","ss","ll","sb","tb","gg","bb","sg"]
     events = 0
     weighted = []
     nonweighted = []
+    processCrossSections = []
     for p in process:
       cuts.append(GetHist(DataSetName = File,folder = "PdfOps_%d%s"%(lower,"_%d"%upper if upper else "") ,
-                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = None ,Legend = "hist",rebin= 2))
+                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = None ,Legend = "hist",rebin= 2))
 
       nocuts.append(GetHist(DataSetName = File,folder = "PdfOps_before",
-                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
+                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
 
       weighted.append(GetHist(DataSetName = File,folder = "PdfOps_before",
                       hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2))
@@ -59,24 +60,31 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
       nonweighted.append(GetHist(DataSetName = File,folder = "PdfOps_before",
                       hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
 
-      # sec.Draw("COLZ")
-      # c1.Print("foo.ps")
+      # Make the process cross sections:
+      p_xsec = GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2).Clone()
+      p_xsec.Divide(GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
+      processCrossSections.append(p_xsec)
+      p_xsec.Draw("COLZ")
+      c1.Print("foo.ps")
+      Text = r.TLatex(0.1,0.9,"Process %s Xsec PdfOps_%d%s_hist"%(p,lower,"_%d"%upper if upper else ""))
+      Text.SetNDC()
     # for cut,nocut in zip(cuts,nocuts):
       # events += (cut.GetBinContent(xBin,yBin)/nocut.GetBinContent(xBin,yBin))
     # Make Total Xsection:
     totalXsec =  nloTotalXsecMaker(weighted,nonweighted)
-    trial = Adder(weighted)
-
-    print "cross section of point is ", totalXsec.GetBinContent(xBin,yBin), " M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)), "sum of sigma * N for point is ", trial.GetBinContent(xBin,yBin)/10000.
+    # print "cross section of point is ", totalXsec.GetBinContent(xBin,yBin), " M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)), "sum of sigma * N for point is ", trial.GetBinContent(xBin,yBin)
     totalXsec.Draw("COLZ")
-    totalXsec.SetMinimum(0.0001)
-    totalXsec.SetMaximum(6000000.)
+    totalXsec.SetMinimum(0.01)
+    totalXsec.SetMaximum(100000.)
     c1.SetLogz()
     Text = r.TLatex(0.1,0.9,"Xsection PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
     Text.SetNDC()
     Text.Draw("SAME")
     c1.Print("foo.ps")
-    TotalEff =  NloEffHisto(cuts,nocuts,totalXsec)
+    print len(processCrossSections),len(cuts),len(nocuts)
+    TotalEff =  NloEffHisto(cuts,nocuts,processCrossSections,totalXsec)
     TotalEff.Draw("COLZ")
     c1.SetLogz(r.kFALSE)
     Text = r.TLatex(0.1,0.9,"Eff PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))

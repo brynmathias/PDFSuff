@@ -84,12 +84,14 @@ def nloTotalXsecMaker(weighted,notweighted):
   return out
 
 
-def NloEffHisto(aftercuts,beforecuts,TotalXsec):
+def NloEffHisto(aftercuts,beforecuts,processCrossSections,TotalXsec):
   """Make CMSSM NLO plots from input histograms"""
   out = None
-  for after,before in zip(aftercuts,beforecuts):
+  for after,before,processCrossSection in zip(aftercuts,beforecuts,processCrossSections):#gives us €_p
       h = after.Clone()
       h.Divide(before)
+      print type(h),type(processCrossSection)
+      h.Multiply(processCrossSection)
       if out is None: out = h.Clone()
       else:           out.Add(h)
   out.Divide(TotalXsec)
