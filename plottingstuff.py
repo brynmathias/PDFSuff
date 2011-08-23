@@ -94,9 +94,11 @@ def NloEffHisto(aftercuts,beforecuts,processCrossSections,TotalXsec):
       h.Multiply(processCrossSection)
       if out is None: out = h.Clone()
       else:           out.Add(h)
+  out.Scale(1./8.)
   out.Divide(TotalXsec)
   return out
   pass
+
 
 
 
