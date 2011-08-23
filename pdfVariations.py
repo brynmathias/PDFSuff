@@ -66,10 +66,6 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
       p_xsec.Divide(GetHist(DataSetName = File,folder = "PdfOps_before",
                       hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
       processCrossSections.append(p_xsec)
-      p_xsec.Draw("COLZ")
-      c1.Print("foo.ps")
-      Text = r.TLatex(0.1,0.9,"Process %s Xsec PdfOps_%d%s_hist"%(p,lower,"_%d"%upper if upper else ""))
-      Text.SetNDC()
     # for cut,nocut in zip(cuts,nocuts):
       # events += (cut.GetBinContent(xBin,yBin)/nocut.GetBinContent(xBin,yBin))
     # Make Total Xsection:
@@ -91,7 +87,7 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
     Text.SetNDC()
     Text.Draw("SAME")
     c1.Print("foo.ps")
-    print "PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else "") , "events", events
+    # print "PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else "") , "events", events
     e_275.Fill(events)
     # print "Lenght of histogram containers is (cuts,nocuts,xsec) = (%d,%d,%d)"%(len(cuts),len(nocuts),len(xsec))
     # for cut,nocut,xsection in zip(cuts,nocuts,xsec):

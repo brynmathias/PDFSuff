@@ -53,7 +53,7 @@ def Adder(hist):
   tot = 0
   for h in hist:
     tot += h.GetBinContent(62,36)
-    print "Totting up"  ,tot
+    # print "Totting up"  ,tot
     if out == None: out = h.Clone()
     else: out.Add(h)
   """docstring for Adder"""
@@ -78,7 +78,7 @@ def nloTotalXsecMaker(weighted,notweighted):
   out = None
   nom = Adder(weighted)
   denom = Adder(notweighted)
-  print "no events per bin:", denom.GetBinContent(62,36)
+  # print "no events per bin:", denom.GetBinContent(62,36)
   out = nom.Clone()
   out.Divide(denom)
   return out
@@ -90,7 +90,7 @@ def NloEffHisto(aftercuts,beforecuts,processCrossSections,TotalXsec):
   for after,before,processCrossSection in zip(aftercuts,beforecuts,processCrossSections):#gives us €_p
       h = after.Clone()
       h.Divide(before)
-      print type(h),type(processCrossSection)
+      # print type(h),type(processCrossSection)
       h.Multiply(processCrossSection)
       if out is None: out = h.Clone()
       else:           out.Add(h)
