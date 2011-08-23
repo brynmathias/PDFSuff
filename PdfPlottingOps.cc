@@ -123,7 +123,12 @@ void PDFPlottingOps::BookHistos() {
   //   zBins_,zLow_,zHigh_, //mChi
   //   45, 0, 1,false );
 
-
+  BookHistArray( H_M0_M12_noweight,
+    "m0_m12_noweight",
+    ";m0;m12",
+    xBins_,xLow_,xHigh_,//m0
+    yBins_,yLow_,yHigh_,//m12
+    1, 0, 1,false );
   BookHistArray( H_M0_M12_sb,
     "m0_m12_sb",
     ";m0;m12",
@@ -392,6 +397,7 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
       // if(k==2)H_M0_M12_MSTW2008[n]->Fill(M0,M12,MChi,weight*PDFUncWeight);
       // if(k==3)H_M0_M12_NNPDF[n]   ->Fill(M0,M12,MChi,weight*PDFUncWeight);
         if(verbose_ == true)cout << " m0 " << M0 << " m12 " << M12 << " nlocross " << NLOcrosssection << endl;
+        H_M0_M12_noweight[0]->Fill(M0,M12,1);
         switch(process){
           case NLO::nn: H_M0_M12_nn[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_nn_noweight[0]->Fill(M0,M12,1); break;
           case NLO::ns: H_M0_M12_ns[n]->Fill(M0,M12,NLOcrosssection*PDFUncWeight); H_M0_M12_ns_noweight[0]->Fill(M0,M12,1); break;

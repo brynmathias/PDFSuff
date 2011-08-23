@@ -50,7 +50,10 @@ def GetHist(DataSetName = "TFile.root",folder = None ,hist = "myHist",col = 0,no
 
 def Adder(hist):
   out = None
+  tot = 0
   for h in hist:
+    tot += h.GetBinContent(62,36)
+    print "Totting up"  ,tot
     if out == None: out = h.Clone()
     else: out.Add(h)
   """docstring for Adder"""
@@ -70,21 +73,29 @@ def weightedAdder(hist,weight):
   return out
   pass
 
-def EffMaker(cuts,nocuts,xsecs):
+def nloTotalXsecMaker(weighted,notweighted):
+  """Take two sets of histograms and make the NLO total cross section from it"""
   out = None
-  for cut,nocut,xsec in zip(cuts,nocuts,xsecs):
-    if out == None:
-      new = cut.Clone()
-      new.Divide(nocut)
-      new.Multiply(xsec)
-      out = new.Clone()
-    else:
-      new = cut.Clone()
-      new.Divide(nocut)
-      new.Multiply(xsec)
-      out.Add(new)
+  nom = Adder(weighted)
+  denom = Adder(notweighted)
+  print "no events per bin:", denom.GetBinContent(62,36)
+  out = nom.Clone()
+  out.Divide(denom)
+  return out
+
+
+def NloEffHisto(aftercuts,beforecuts,TotalXsec):
+  """Make CMSSM NLO plots from input histograms"""
+  out = None
+  for after,before in zip(aftercuts,beforecuts):
+      h = after.Clone()
+      h.Divide(before)
+      if out is None: out = h.Clone()
+      else:           out.Add(h)
+  out.Divide(TotalXsec)
   return out
   pass
+
 
 
 

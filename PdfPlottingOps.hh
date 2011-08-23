@@ -53,7 +53,7 @@ namespace Operation {
      std::vector<TH3D *> H_M0_M12_MSTW2008;
      std::vector<TH3D *> H_M0_M12_NNPDF;
      std::vector<TH3D *> H_M0_M12_pdfweight;
-
+    std::vector<TH2D *> H_M0_M12_noweight;
     int    xBins_;
     double xLow_;
     double xHigh_;
