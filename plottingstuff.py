@@ -57,6 +57,36 @@ def Adder(hist):
   return out
   pass
 
+def weightedAdder(hist,weight):
+  if len(hist) != len(weight): print "Weight list and hist list are not the same lenght"
+  out = None
+  for h,w in zip(hist,weight):
+    if out == None:
+      out = h.Clone()
+      out.Multiply(w)
+    else :
+      h.Multiply(w)
+      out.Add(h)
+  return out
+  pass
+
+def EffMaker(cuts,nocuts,xsecs):
+  out = None
+  for cut,nocut,xsec in zip(cuts,nocuts,xsecs):
+    if out == None:
+      new = cut.Clone()
+      new.Divide(nocut)
+      new.Multiply(xsec)
+      out = new.Clone()
+    else:
+      new = cut.Clone()
+      new.Divide(nocut)
+      new.Multiply(xsec)
+      out.Add(new)
+  return out
+  pass
+
+
 
 # def rebinScan(Hist):
 #   """docstring for rebinScan"""
