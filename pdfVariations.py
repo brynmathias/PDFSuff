@@ -12,7 +12,7 @@ import os
 import ROOT as r
 from plottingstuff import *
 r.gROOT.SetBatch(True) # suppress the creation of canvases on the screen... much much faster if over a remote connection
-
+# r.gStyle.SetOptStat(0)
 leg = r.TLegend(0.1, 0.4, 0.6, 1.0)
 leg.SetShadowColor(0)
 leg.SetBorderSize(0)
@@ -36,9 +36,14 @@ yBin = 26
 c1.Print("foo.ps[")
 HTbins = [275,325]+ [375+100*i for i in range(6)]
 for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
-  Text = r.TLatex(0.1,0.9,"PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
+  Text = r.TLatex(0.1,0.92,"PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
   Text.SetNDC()
-  e_275 = r.TH1D("PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"PdfOps_Hist%d%s"%(lower,"_%d"%upper if upper else ""),4000,0.,0.4)
+  M0_200_M12_600  = r.TH1D("PdfOpsM0_200_M12_600_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
+  M0_500_M12_500  = r.TH1D("PdfOpsM0_500_M12_500_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
+  M0_1000_M12_300 = r.TH1D("PdfOpsM0_1000_M12_300_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
+  M0_2000_M12_200 = r.TH1D("PdfOpsM0_2000_M12_200_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
+
+
   print "PdfOps_%d%s"%(lower,"_%d"%upper if upper else "")
   for i in range(0,41):
     cuts = []
@@ -63,7 +68,7 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
 
       # Make the process cross sections:
       p_xsec = GetHist(DataSetName = File,folder = "PdfOps_before",
-                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2).Clone()
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2)
       p_xsec.Divide(GetHist(DataSetName = File,folder = "PdfOps_before",
                       hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
       processCrossSections.append(p_xsec)
@@ -71,13 +76,28 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
       # events += (cut.GetBinContent(xBin,yBin)/nocut.GetBinContent(xBin,yBin))
     # Make Total Xsection:
     totalXsec =  nloTotalXsecMaker(weighted,nonweighted)
+    TotalEff =  NloEffHisto(cuts,nocuts,processCrossSections,totalXsec)
+
+    if i == 0:
+      Nevents = Adder(cuts)
+      Nevents.Divide(Adder(nocuts))
+      c1.SetLogz(r.kFALSE)
+      Nevents.Draw("COLZ")
+      Nevents.GetZaxis().SetLabelSize(0.02)
+      Text = r.TLatex(0.1,0.92,"Nevents in sum of pdfops before ")
+      Text.SetNDC()
+      Text.Draw("SAME")
+      c1.Print("foo.ps")
+
     # print "cross section of point is ", totalXsec.GetBinContent(xBin,yBin), " M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)), "sum of sigma * N for point is ", trial.GetBinContent(xBin,yBin)
 
-    TotalEff =  NloEffHisto(cuts,nocuts,processCrossSections,totalXsec)
     if i == 0:
-      Text = r.TLatex(0.1,0.9,"Eff PdfOps_%d%s_hist M0,M12 = %f%f"%(lower,"_%d"%upper if upper else "", nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)))
+      Text = r.TLatex(0.1,0.92,"Eff PdfOps_%d%s_hist M0,M12 = %f%f"%(lower,"_%d"%upper if upper else "", nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)))
       Text.SetNDC()
       TotalEff.GetZaxis().SetLabelSize(0.02)
+      if lower is 875:
+        TotalEff.SetMaximum(0.16)
+        TotalEff.SetMinimum(0.0)
       TotalEff.Draw("COLZ")
       c1.SetLogz(r.kFALSE)
       Text.Draw("SAME")
@@ -85,7 +105,11 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
 
 
     # print "PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else "") , "events", events
-    e_275.Fill(TotalEff.GetBinContent(xBin,yBin))
+    # e_275.Fill(TotalEff.GetBinContent(xBin,yBin))
+    M0_200_M12_600.Fill(TotalEff.GetBinContent(11,31))
+    M0_500_M12_500.Fill(TotalEff.GetBinContent(26,26))
+    M0_1000_M12_300.Fill(TotalEff.GetBinContent(51,17))
+    M0_2000_M12_200.Fill(TotalEff.GetBinContent(91,11))
     # print "Lenght of histogram containers is (cuts,nocuts,xsec) = (%d,%d,%d)"%(len(cuts),len(nocuts),len(xsec))
     # for cut,nocut,xsection in zip(cuts,nocuts,xsec):
 
@@ -98,14 +122,33 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
   # for cut,nocut in zip(cuts,nocuts):
     # print "bin content of M0,M12 (%d,%d) is %f"%(nocut.GetXaxis().GetBinLowEdge(xBin),nocut.GetYaxis().GetBinLowEdge(yBin),nocut.GetBinContent(xBin,yBin))
     # if nocut.GetBinContent(xBin,yBin) > 0: e_275.Fill(cut.GetBinContent(xBin,yBin) /nocut.GetBinContent(xBin,yBin))
-  e_275.Draw("hist")
+  # e_275.Draw("hist")
+  M0_200_M12_600.Draw("hist")
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(11),nocuts[0].GetYaxis().GetBinLowEdge(31)))
+  Text.SetNDC()
+  Text.Draw("SAME")
+  c1.Print("foo.ps")
+  M0_500_M12_500.Draw("hist")
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(26),nocuts[0].GetYaxis().GetBinLowEdge(26)))
+  Text.SetNDC()
+  Text.Draw("SAME")
+  c1.Print("foo.ps")
+  M0_1000_M12_300.Draw("hist")
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(51),nocuts[0].GetYaxis().GetBinLowEdge(17)))
+  Text.SetNDC()
+  Text.Draw("SAME")
+  c1.Print("foo.ps")
+  M0_2000_M12_200.Draw("hist")
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(91),nocuts[0].GetYaxis().GetBinLowEdge(11)))
+  Text.SetNDC()
+  Text.Draw("SAME")
   c1.Print("foo.ps")
   totalXsec.GetZaxis().SetLabelSize(0.02)
   totalXsec.Draw("COLZ")
   totalXsec.SetMinimum(0.01)
   totalXsec.SetMaximum(100000.)
   c1.SetLogz()
-  Text = r.TLatex(0.1,0.9,"Xsection PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
+  Text = r.TLatex(0.1,0.92,"Xsection PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
   Text.SetNDC()
   Text.Draw("SAME")
   c1.Print("foo.ps")

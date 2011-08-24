@@ -76,11 +76,12 @@ def weightedAdder(hist,weight):
 def nloTotalXsecMaker(weighted,notweighted):
   """Take two sets of histograms and make the NLO total cross section from it"""
   out = None
-  nom = Adder(weighted)
-  denom = Adder(notweighted)
+  for nom,denom in zip(weighted,notweighted):
+    a = nom.Clone()
+    a.Divide(denom)
+    if out is None: out = a.Clone()
+    else: out.Add(a)
   # print "no events per bin:", denom.GetBinContent(62,36)
-  out = nom.Clone()
-  out.Divide(denom)
   return out
 
 
@@ -94,7 +95,6 @@ def NloEffHisto(aftercuts,beforecuts,processCrossSections,TotalXsec):
       h.Multiply(processCrossSection)
       if out is None: out = h.Clone()
       else:           out.Add(h)
-  out.Scale(1./8.)
   out.Divide(TotalXsec)
   return out
   pass
