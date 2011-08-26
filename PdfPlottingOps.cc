@@ -98,10 +98,10 @@ void PDFPlottingOps::Start( Event::Data& ev ) {
   LHAPDF::setPDFPath("/vols/cms03/bm409/LHAPDF/share/lhapdf/");
 
   std::string pdfName1_ = "cteq61";
-  // std::string pdfName2_ = "MSTW2008nlo68cl";
+  std::string pdfName2_ = "MSTW2008nlo68cl";
   const int pdfSubset = 0;
   LHAPDF::initPDFSet(1, pdfName1_, LHAPDF::LHGRID, pdfSubset);
-  // LHAPDF::initPDFSet(2, pdfName2_, LHAPDF::LHGRID, pdfSubset);
+  LHAPDF::initPDFSet(2, pdfName2_, LHAPDF::LHGRID, pdfSubset);
       // LHAPDF::initPDFSet(2,NAME2);
   //    LHAPDF::initPDFSet(3,NAME3);
 
@@ -358,7 +358,6 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
     }
 
   //now set up the baseline values with which to weight relative to:
-    // LHAPDF::usePDFMember(2, 0);
     // double fx1Q0Other = LHAPDF::xfx(ev.genx1(), ev.genQ(), ev.genid1())/ev.genx1();
     // double fx2Q0Other = LHAPDF::xfx(ev.genx2(), ev.genQ(), ev.genid2())/ev.genx2();
 
@@ -367,6 +366,7 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
     double genpdf1 = LHAPDF::xfx(ev.genx1(), ev.genQ(), ev.genid1())/ev.genx1();
     double genpdf2 = LHAPDF::xfx(ev.genx2(), ev.genQ(), ev.genid2())/ev.genx2();
 
+    LHAPDF::usePDFMember(2, 0);
 
 
     // double pdfWeightOther = (fx1Q0Other*fx2Q0Other)/(fx1Q0*fx2Q0);
@@ -396,7 +396,7 @@ bool PDFPlottingOps::Process( Event::Data& ev ) {
 
 
 
-      const int NUMBER = LHAPDF::numberPDF(1);
+      const int NUMBER = LHAPDF::numberPDF(2);
 
       if(verbose_ == true)cout << " number " << NUMBER << endl;
 

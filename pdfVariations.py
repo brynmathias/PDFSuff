@@ -6,7 +6,7 @@ pdfVariations.py
 Created by Bryn Mathias on 2011-08-22.
 Copyright (c) 2011 Imperial College. All rights reserved.
 """
-
+import array
 import sys
 import os
 import ROOT as r
@@ -38,10 +38,10 @@ HTbins = [275,325]+ [375+100*i for i in range(6)]
 for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
   Text = r.TLatex(0.1,0.92,"PdfOps_%d%s_hist"%(lower,"_%d"%upper if upper else ""))
   Text.SetNDC()
-  M0_200_M12_600  = r.TH1D("PdfOpsM0_200_M12_600_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
-  M0_500_M12_500  = r.TH1D("PdfOpsM0_500_M12_500_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
-  M0_1000_M12_300 = r.TH1D("PdfOpsM0_1000_M12_300_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
-  M0_2000_M12_200 = r.TH1D("PdfOpsM0_2000_M12_200_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",4000,0.,0.4)
+  M0_200_M12_600  =  r.TH1D("PdfOpsM0_200_M12_600_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",1000,0.,0.1)
+  M0_500_M12_500  =  r.TH1D("PdfOpsM0_500_M12_500_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",1000,0.,0.1)
+  M0_1000_M12_300 = r.TH1D("PdfOpsM0_1000_M12_300_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",1000,0.,0.1)
+  M0_2000_M12_200 = r.TH1D("PdfOpsM0_2000_M12_200_%d%s_hist"%(lower,"_%d"%upper if upper else ""),"",1000,0.,0.1)
 
 
   print "PdfOps_%d%s"%(lower,"_%d"%upper if upper else "")
@@ -55,10 +55,10 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
     processCrossSections = []
     for p in process:
       cuts.append(GetHist(DataSetName = File,folder = "PdfOps_%d%s"%(lower,"_%d"%upper if upper else "") ,
-                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = None ,Legend = "hist",rebin= 2))
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = None ,Legend = "hist",rebin= 2))
 
       nocuts.append(GetHist(DataSetName = File,folder = "PdfOps_before",
-                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
 
       weighted.append(GetHist(DataSetName = File,folder = "PdfOps_before",
                       hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2))
@@ -92,12 +92,27 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
     # print "cross section of point is ", totalXsec.GetBinContent(xBin,yBin), " M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)), "sum of sigma * N for point is ", trial.GetBinContent(xBin,yBin)
 
     if i == 0:
+      t1  = r.TLatex(0.1,0.6,"Point has M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(26),nocuts[0].GetYaxis().GetBinLowEdge(26)))
+      t2  = r.TLatex(0.1,0.55,"nn CrossSection = %f"%(weighted[0].GetBinContent(26,26)/nonweighted[0].GetBinContent(26,26)))
+      t3  = r.TLatex(0.1,0.5,"ns CrossSection = %f"%(weighted[1].GetBinContent(26,26) /nonweighted[1].GetBinContent(26,26)))
+      t4  = r.TLatex(0.1,0.45,"ng CrossSection = %f"%(weighted[2].GetBinContent(26,26)/nonweighted[2].GetBinContent(26,26)))
+      t5  = r.TLatex(0.1,0.4,"ss CrossSection = %f"%(weighted[3].GetBinContent(26,26) /nonweighted[3].GetBinContent(26,26)))
+      t6  = r.TLatex(0.1,0.35,"ll CrossSection = %f"%(weighted[4].GetBinContent(26,26)/nonweighted[4].GetBinContent(26,26)))
+      t7  = r.TLatex(0.1,0.3,"sb CrossSection = %f"%(weighted[5].GetBinContent(26,26) /nonweighted[5].GetBinContent(26,26)))
+      t8  = r.TLatex(0.1,0.25,"tb CrossSection = %f"%(weighted[6].GetBinContent(26,26)/nonweighted[6].GetBinContent(26,26)))
+      t9  = r.TLatex(0.1,0.2,"gg CrossSection = %f"%(weighted[7].GetBinContent(26,26) /nonweighted[7].GetBinContent(26,26)))
+      t10 = r.TLatex(0.1,0.15,"bb CrossSection = %f"%(weighted[8].GetBinContent(26,26)/nonweighted[8].GetBinContent(26,26)))
+      t11 = r.TLatex(0.1,0.1,"sg CrossSection = %f"%(weighted[9].GetBinContent(26,26) /nonweighted[9].GetBinContent(26,26)))
+      # t12= r.TLatex(0.1,0.65,"bb CrossSection = %f"%(weighted[10].GetBinContent(26,26)/nonweighted[10].GetBinContent(26,26)))
+      for n in range(1,11):
+        eval("t%d.SetNDC()"%(n))
       Text = r.TLatex(0.1,0.92,"Eff PdfOps_%d%s_hist M0,M12 = %f%f"%(lower,"_%d"%upper if upper else "", nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)))
       Text.SetNDC()
       TotalEff.GetZaxis().SetLabelSize(0.02)
-      if lower is 875:
-        TotalEff.SetMaximum(0.16)
-        TotalEff.SetMinimum(0.0)
+      # if lower is 875:
+      TotalEff.SetNdivisions(510,"Z")
+      TotalEff.SetMaximum(0.16)
+      TotalEff.SetMinimum(0.0)
       TotalEff.Draw("COLZ")
       c1.SetLogz(r.kFALSE)
       Text.Draw("SAME")
@@ -124,22 +139,27 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
     # if nocut.GetBinContent(xBin,yBin) > 0: e_275.Fill(cut.GetBinContent(xBin,yBin) /nocut.GetBinContent(xBin,yBin))
   # e_275.Draw("hist")
   M0_200_M12_600.Draw("hist")
-  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(11),nocuts[0].GetYaxis().GetBinLowEdge(31)))
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d, cross section %f"%(nocuts[0].GetXaxis().GetBinLowEdge(11),nocuts[0].GetYaxis().GetBinLowEdge(31),totalXsec.GetBinContent(11,31)))
   Text.SetNDC()
   Text.Draw("SAME")
   c1.Print("foo.ps")
+  c1.Clear()
+  for n in range(1,11):
+    if n is 1: eval("t%d.Draw()"%(n))
+    else:  eval("t%d.Draw('SAME')"%(n))
+  c1.Print("foo.ps")
   M0_500_M12_500.Draw("hist")
-  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(26),nocuts[0].GetYaxis().GetBinLowEdge(26)))
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d, cross section %f"%(nocuts[0].GetXaxis().GetBinLowEdge(26),nocuts[0].GetYaxis().GetBinLowEdge(26),totalXsec.GetBinContent(26,26)))
   Text.SetNDC()
   Text.Draw("SAME")
   c1.Print("foo.ps")
   M0_1000_M12_300.Draw("hist")
-  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(51),nocuts[0].GetYaxis().GetBinLowEdge(17)))
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d, cross section %f"%(nocuts[0].GetXaxis().GetBinLowEdge(51),nocuts[0].GetYaxis().GetBinLowEdge(17),totalXsec.GetBinContent(51,17)))
   Text.SetNDC()
   Text.Draw("SAME")
   c1.Print("foo.ps")
   M0_2000_M12_200.Draw("hist")
-  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d"%(nocuts[0].GetXaxis().GetBinLowEdge(91),nocuts[0].GetYaxis().GetBinLowEdge(11)))
+  Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d, cross section %f"%(nocuts[0].GetXaxis().GetBinLowEdge(91),nocuts[0].GetYaxis().GetBinLowEdge(11),totalXsec.GetBinContent(91,11)))
   Text.SetNDC()
   Text.Draw("SAME")
   c1.Print("foo.ps")
@@ -158,8 +178,61 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
 
 
 
-# xsec = before_i / before noWeight
+# Now we make plot set 2 - variations in HT dependant binning.
+# First make central bin - 0th variation
+HTbins = [275,325]+ [375+100*i for i in range(6)]
+Default = r.TH1D("Default","Default",8,array.array('d',HTbins+[3000]))
+Default.SetLineColor(2)
+for i in range(0,41):
+  Text = r.TLatex(0.1,0.92,"PdfOps_Variation_%f"%(i))
+  Text.SetNDC()
+  Varied =  r.TH1D("Variation_%f"%(i),"Variation_%f"%(i),8,array.array('d',HTbins+[3000]))
+  bin = 0
+  for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
+    bin += 1
+    print "PdfOps_%d%s"%(lower,"_%d"%upper if upper else "")
+    cuts = []
+    nocuts = []
+    process = ["nn","ns","ng","ss","ll","sb","tb","gg","bb","sg"]
+    events = 0
+    weighted = []
+    nonweighted = []
+    processCrossSections = []
+    for p in process:
+      cuts.append(GetHist(DataSetName = File,folder = "PdfOps_%d%s"%(lower,"_%d"%upper if upper else "") ,
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = None ,Legend = "hist",rebin= 2))
 
+      nocuts.append(GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
+
+      weighted.append(GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2))
+
+      nonweighted.append(GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
+
+      # Make the process cross sections:
+      p_xsec = GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_%d"%(p,i),col = 1,norm = 1./8 ,Legend = "hist",rebin= 2)
+      p_xsec.Divide(GetHist(DataSetName = File,folder = "PdfOps_before",
+                      hist = "m0_m12_%s_noweight"%(p),col = 1,norm = 1./8. ,Legend = "hist",rebin= 2))
+      processCrossSections.append(p_xsec)
+    # for cut,nocut in zip(cuts,nocuts):
+      # events += (cut.GetBinContent(xBin,yBin)/nocut.GetBinContent(xBin,yBin))
+    # Make Total Xsection:
+    totalXsec =  nloTotalXsecMaker(weighted,nonweighted)
+    TotalEff =  NloEffHisto(cuts,nocuts,processCrossSections,totalXsec)
+    if i is 0: Default.SetBinContent(bin, TotalEff.GetBinContent(26,26))
+    print "Varied Cross section is ", TotalEff.GetBinContent(26,26) , "in bin", Default.GetBinLowEdge(bin)
+    if i is not 0 : Varied.SetBinContent(bin, TotalEff.GetBinContent(26,26))
+
+
+  Default.Draw("hist")
+  Varied.SetLineColor(4)
+  Varied.Draw("SAMEHIST")
+  Text.Draw("SAME")
+  c1.Print("foo.ps")
+  for f in r.gROOT.GetListOfFiles() :f.Close()
 
 
 
