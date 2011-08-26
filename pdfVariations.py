@@ -27,7 +27,11 @@ leg.SetLineColor(0)
 c1 = r.TCanvas("canvas","canname",1400,1200)
 closeList = []
 # NoScale = GetHist(DataSetName = "AK5Calo_mSUGRA_m0_20to2000_m12_20to760_tanb_10andA0_0_7TeV_Pythia6Z_Summer11_PU_S4_START42_V11_FastSim_v1_Had_100.root",folder = "mSuGraScan_before_scale1" ,hist = "m0_m12_gg_",col = 1,norm = None ,Legend = "hist")
-
+TextFile = open("./TextFile.txt",'w')
+text200600  = ""
+text500500  = ""
+text1000300 = ""
+text2000200 = ""
 # gg_before = GetHist(DataSetName = File,folder = "mSuGraScan_before_scale1" ,hist = "m0_m12_gg_noweight",col = 1,norm = 1./8. ,Legend = "hist",rebin = 2)
 # File = r."PDFUncert.root".Open("PDFUncert.root")
 File = "PDFUncert.root"
@@ -92,6 +96,14 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
     # print "cross section of point is ", totalXsec.GetBinContent(xBin,yBin), " M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(xBin),nocuts[0].GetYaxis().GetBinLowEdge(yBin)), "sum of sigma * N for point is ", trial.GetBinContent(xBin,yBin)
 
     if i == 0:
+      text200600 +=("M0,M12 = (%f, %f) \nHTBin: %f%s \n No-Variation Xsection = %f \nNo-Variation Efficiency = %f \n"
+      %(nocuts[0].GetXaxis().GetBinLowEdge(11),nocuts[0].GetYaxis().GetBinLowEdge(31),lower,"_%f"%upper if upper else "",totalXsec.GetBinContent(11,31),TotalEff.GetBinContent(11,31)))
+      text500500 +=("M0,M12 = (%f, %f) \nHTBin: %f%s \n No-Variation Xsection = %f \nNo-Variation Efficiency = %f \n"
+      %(nocuts[0].GetXaxis().GetBinLowEdge(26),nocuts[0].GetYaxis().GetBinLowEdge(26),lower,"_%f"%upper if upper else "",totalXsec.GetBinContent(26,26),TotalEff.GetBinContent(26,26)))
+      text1000300 += ("M0,M12 = (%f, %f) \nHTBin: %f%s \n No-Variation Xsection = %f \nNo-Variation Efficiency = %f \n"
+      %(nocuts[0].GetXaxis().GetBinLowEdge(51),nocuts[0].GetYaxis().GetBinLowEdge(17),lower,"_%f"%upper if upper else "",totalXsec.GetBinContent(51,17),TotalEff.GetBinContent(51,17)))
+      text2000200 += ("M0,M12 = (%f, %f) \nHTBin: %f%s \n No-Variation Xsection = %f \nNo-Variation Efficiency = %f \n"
+      %(nocuts[0].GetXaxis().GetBinLowEdge(91),nocuts[0].GetYaxis().GetBinLowEdge(11),lower,"_%f"%upper if upper else "",totalXsec.GetBinContent(91,11),TotalEff.GetBinContent(91,11)))
       t1  = r.TLatex(0.1,0.6,"Point has M0,M12 (%d,%d)"%(nocuts[0].GetXaxis().GetBinLowEdge(26),nocuts[0].GetYaxis().GetBinLowEdge(26)))
       t2  = r.TLatex(0.1,0.55,"nn CrossSection = %f"%(weighted[0].GetBinContent(26,26)/nonweighted[0].GetBinContent(26,26)))
       t3  = r.TLatex(0.1,0.5,"ns CrossSection = %f"%(weighted[1].GetBinContent(26,26) /nonweighted[1].GetBinContent(26,26)))
@@ -140,6 +152,7 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
   # e_275.Draw("hist")
   M0_200_M12_600.Draw("hist")
   Text = r.TLatex(0.1,0.92,"Eff dist M0,M12 = %d, %d, cross section %f"%(nocuts[0].GetXaxis().GetBinLowEdge(11),nocuts[0].GetYaxis().GetBinLowEdge(31),totalXsec.GetBinContent(11,31)))
+
   Text.SetNDC()
   Text.Draw("SAME")
   c1.Print("foo.ps")
@@ -174,10 +187,13 @@ for lower,upper in zip(HTbins,HTbins[1:]+[None]) :
   c1.Print("foo.ps")
   for f in r.gROOT.GetListOfFiles() :f.Close()
 
+TextFile.write(text200600+text500500+text1000300+text2000200)
 
-
-
-
+c1.Print("foo.ps]")
+# os.popen("ps2pdf ./foo.ps")
+#
+c1.Print("bar.ps[")
+page = 0
 # Now we make plot set 2 - variations in HT dependant binning.
 # First make central bin - 0th variation
 HTbins = [275,325]+ [375+100*i for i in range(6)]
@@ -222,25 +238,25 @@ for i in range(0,41):
     # Make Total Xsection:
     totalXsec =  nloTotalXsecMaker(weighted,nonweighted)
     TotalEff =  NloEffHisto(cuts,nocuts,processCrossSections,totalXsec)
-    if i is 0: Default.SetBinContent(bin, TotalEff.GetBinContent(26,26))
-    print "Varied Cross section is ", TotalEff.GetBinContent(26,26) , "in bin", Default.GetBinLowEdge(bin)
-    if i is not 0 : Varied.SetBinContent(bin, TotalEff.GetBinContent(26,26))
+    if i is 0: Default.SetBinContent(bin, TotalEff.GetBinContent(91,11))
+    print "Varied Cross section is ", TotalEff.GetBinContent(91,11) , "in bin", Default.GetBinLowEdge(bin)
+    Varied.SetBinContent(bin, TotalEff.GetBinContent(91,11))
 
 
   Default.Draw("hist")
   Varied.SetLineColor(4)
   Varied.Draw("SAMEHIST")
   Text.Draw("SAME")
-  c1.Print("foo.ps")
+  c1.Print("bar.ps")
+  Ratio = Default.Clone()
+  Ratio.Divide(Varied)
+  Ratio.Draw("HIST")
+  c1.Print("bar.ps")
+  print "Page %d written"%(page)
+  page += 1
   for f in r.gROOT.GetListOfFiles() :f.Close()
-
-
-
-
-
-c1.Print("foo.ps]")
-os.popen("ps2pdf ./foo.ps")
-
+c1.Print("bar.ps]")
+os.popen("ps2pdf ./bar.ps")
 
 
 
