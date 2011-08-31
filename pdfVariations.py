@@ -212,13 +212,13 @@ for i in range(0,101):
   Varied.SetLineColor(4)
   Varied.Draw("SAMEHIST")
   Text.Draw("SAME")
-  c1.Print("bar_NNPDF.ps")
+  # c1.Print("bar_NNPDF.ps")
   Ratio = Default.Clone()
   Ratio.Divide(Varied)
   Ratio.Draw("HIST")
-  c1.Print("bar_NNPDF.ps")
-  print "Page %d written"%(page)
-  page += 1
+  # c1.Print("bar_NNPDF.ps")
+  # print "Page %d written"%(page)
+  # page += 1
   for f in r.gROOT.GetListOfFiles() : f.Close()
 
 
